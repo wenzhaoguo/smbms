@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+ http://www.springframework.org/schema/context
+ http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/tx
+ http://www.springframework.org/schema/tx/spring-tx.xsd
+ http://www.springframework.org/schema/mvc
+ http://www.springframework.org/schema/mvc/spring-mvc.xsd
+ http://www.springframework.org/schema/aop
+ http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+	<!-- 读取数据配置文件 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:database.properties"></property>
+	</bean>
+	<!-- 创建数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driver}"></property>
+		<property name="url" value="${url}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	<!-- 创建SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="typeAliasesPackage" value="cn.smbms.pojo"></property>
+		<!-- 不需要mybatis_config.xml -->
+		<!-- <property name="mapperLocations" value="classpath:cn.bdqn.sm.dao"></property> -->
+		<!-- 需要mybatis_config.xml -->
+		<property name="configLocation" value="classpath:mybatis_config.xml"></property>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.smbms.dao"></property>
+	</bean>
+	<!-- 扫描添加注解的包 -->
+	<context:component-scan base-package="cn.smbms.dao,cn.smbms.service"></context:component-scan>
+
+	<!-- 基于注解 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<!-- 扫面注解 -->
+	<context:component-scan base-package="cn.smbms.springmvc.web"></context:component-scan>
+	<!-- 配置试图解析器 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	<!-- 配置静态资源 -->
+	<mvc:resources location="/statics/" mapping="/statics/**"></mvc:resources>
+	<!-- 配置全局异常 -->
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.RuntimeException">error</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
